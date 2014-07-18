@@ -33,14 +33,14 @@ class User extends REST_Controller {
 		if ($user == false)
 			return false;
 		
+		$this->load->helper('converter_helper');
 		$info = array(
 			'userid' => $user['userid'],
-			'username' => $user['username'],
 			'email' => $user['email'],
 			'firstname' => $user['firstname'],
 			'lastname' => $user['lastname'],
 			'avatar' => $user['avatar'],
-			'jointime' => $user['jointime'],
+			'jointime' => time_to_unixtimestamp($user['jointime'], 'America/Los_Angeles'),
 		);
 		
 		return $info;
@@ -65,12 +65,16 @@ class User extends REST_Controller {
 			$this->response($resp, 400);
 		}
 		
-		$username = $this->post('username');
+		$email = $this->post('email');
 		$password = $this->post('password');
+		$firstname = $this->post('firstname');
+		$lastname = $this->post('lastname') == false ? '' : $this->post('lastname');
 		
-		if ($this->user_model->create_user($username, $password) == TRUE) {
+		if ($this->user_model->create_user($email, $password, $firstname, $lastname) == TRUE) {
+			$id = mysql_insert_id();
+			
 			// get user
-			$user = $this->user_model->get_user($username);
+			$user = $this->user_model->get_user_by_id($id);
 			
 			// user not found
 			if ($user === null) {
@@ -145,15 +149,15 @@ class User extends REST_Controller {
 			'data' => null
 		);
 		
-		$username = $this->get('username');
+		$email = $this->get('email');
 		$password = $this->get('password');		
-		if ($username == false || $password == false) {
+		if ($email == false || $password == false) {
 			$resp['status'] = 400;
-			$resp['message'] = 'Username or password is missing.';
+			$resp['message'] = 'Email or password is missing.';
 			$this->response($resp, 400);
 		}
 		
-		$user = $this->user_model->check_credentials($username, $password);
+		$user = $this->user_model->check_credentials($email, $password);
 		if ($user == false) {
 			$resp['status'] = 401;
 			$resp['message'] = 'User not found or password is invalid.';

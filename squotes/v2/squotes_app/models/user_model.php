@@ -11,16 +11,15 @@ class User_model extends CI_Model {
 	}
 	
 	/**
-	 * Checks if a username is in DB
+	 * Checks if an email is in DB
 	 *
 	 * @access	public
-	 * @param	string $username_or_email
+	 * @param	string $email
 	 * @return	TRUE if user already exists, otherwise FALSE
 	 */	
-	public function user_exists($username_or_email) {
-		// find database for user with specified username or email
-		$this->db->where('username', $username_or_email);
-		$this->db->or_where('email', $username_or_email);
+	public function user_exists($email) {
+		// find database for user with specified email
+		$this->db->where('email', $email);		
 		$query = $this->db->get('users');
 		
 		if ($query != false && $query->num_rows() > 0) {
@@ -34,11 +33,11 @@ class User_model extends CI_Model {
 	 * Creates a new user
 	 *
 	 * @access	public
-	 * @param	string $username the user's username
+	 * @param	string $email the user's email
 	 * @param	string $password the user's password
 	 * @return	TRUE if user creation was successfull, otherwise FALSE
 	 */	
-	public function create_user($username, $password) {
+	public function create_user($email, $password, $firstname, $lastname) {
 		// Create a random salt
 		$random_salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), TRUE));
 		
@@ -46,11 +45,10 @@ class User_model extends CI_Model {
 		$pw = hash('sha512', $password . $random_salt);
 		
 		$user_data = array(
-			'username' => $username,
 			'password' => $pw,
-			'email' => '',
-			'firstname' => "",
-			'lastname' => "",
+			'email' => $email,
+			'firstname' => $firstname,
+			'lastname' => $lastname,
 			'avatar' => "",
 			'salt' => $random_salt,
 		);		
@@ -151,11 +149,10 @@ class User_model extends CI_Model {
 			return false;
 	}
 	
-	public function get_user($username_or_email) {
+	public function get_user($email) {
 		$this->db->select('*');
 		$this->db->from('users');
-		$this->db->where('username', $username_or_email);
-		$this->db->or_where('email', $username_or_email);
+		$this->db->where('email', $email);
 		$this->db->limit(1);
 	
 		$query = $this->db->get();
@@ -168,8 +165,8 @@ class User_model extends CI_Model {
 		}
 	}
 	
-	public function check_credentials($username, $password) {
-		$user = $this->get_user($username);
+	public function check_credentials($email, $password) {
+		$user = $this->get_user($email);
 		
 		if ($user == false)
 			return false;

@@ -21,21 +21,26 @@ $config = array(
 		),
 	),
 	'signup' => array(
-			array(
-					'field' => 'username',
-					'label' => 'Username',
-					'rules' => 'trim|required|min_length[6]|max_length[30]|xss_clean|is_unique[users.username]|alpha_dash',
-			),
-			array(
-					'field' => 'password',
-					'label' => 'Password',
-					'rules' => 'trim|required|min_length[6]|max_length[30]|xss_clean|alpha_dash'
-			),
-// 			array(
-// 					'field' => 'email',
-// 					'label' => 'Email',
-// 					'rules' => 'trim|required|valid_email|max_length[50]|xss_clean|is_unique[users.email]'
-// 			),
+		array(
+				'field' => 'email',
+				'label' => 'Email',
+				'rules' => 'trim|required|valid_email|max_length[100]|xss_clean|is_unique[users.email]'
+		),
+		array(
+				'field' => 'password',
+				'label' => 'Password',
+				'rules' => 'trim|required|min_length[6]|max_length[30]|xss_clean|alpha_dash'
+		),
+		array(
+				'field' => 'firstname',
+				'label' => 'First Name',
+				'rules' => 'required|max_length[50]|xss_clean'
+		),
+		array(
+				'field' => 'lastname',
+				'label' => 'Last Name',
+				'rules' => 'max_length[50]|alpha_numeric|xss_clean'
+		),
 	),
 	'quote_like_fav_share' => array(
 		array(

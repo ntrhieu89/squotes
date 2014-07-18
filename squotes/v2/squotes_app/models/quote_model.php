@@ -42,12 +42,12 @@ class Quote_model extends CI_Model {
 	/**
 	 * Adds a suggested quote to the system.
 	 * @param unknown $userid
-	 * @param unknown $username
+	 * @param unknown $authorname
 	 * @param unknown $content
 	 * @param unknown $language
 	 * @return boolean
 	 */
-	public function add_quote($userid, $username, $content, $language) {
+	public function add_quote($userid, $authorname, $content, $language) {
 		if ($language == false)
 			$language = 'english';
 		
@@ -56,7 +56,7 @@ class Quote_model extends CI_Model {
 			'content' => $content,
 			'userid' => $userid,
 			'ispublished' => true,
-			'authorname' => $username,
+			'authorname' => $authorname,
 			'type' => 1,
 			'language' => $language
 		);

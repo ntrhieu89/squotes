@@ -48,9 +48,11 @@ class Quotes extends REST_Controller {
 			$this->response($resp, 400);
 		}
 		
-		$sorttype = $this->get('sorttype');
+		$sorttype = $this->get('sorttype');		
 		if ($sorttype == false)
 			$sorttype = 'RECENT';
+		
+		$sorttype = strtoupper($sorttype);		
 		if ($sorttype != 'RECENT' && $sorttype != 'HOT') {
 			$resp['status'] = 400;
 			$resp['message'] = 'Sort type is invalid.';
@@ -60,6 +62,8 @@ class Quotes extends REST_Controller {
 		$quotetype = $this->get('quotetype');
 		if ($quotetype == false)
 			$quotetype = 'ALL';
+		
+		$quotetype = strtoupper($quotetype);
 		if ($quotetype != 'ALL' && $quotetype != 'FAMOUS_QUOTE' && $quotetype != 'USER_QUOTE') {
 			$resp['status'] = 400;
 			$resp['message'] = 'Quote type is invalid.';
@@ -297,8 +301,12 @@ class Quotes extends REST_Controller {
 			$resp['message'] = 'Some error happens with the server. Try again later.';
 			$this->response($resp, 500);				
 		}
+		
+		$authorname = $user['firstname'];
+		if ($user['lastname'] != '')
+			$authorname = $authorname.' '.$user['lastname'];
 			
-		if ($this->quote_model->add_quote($userid, $user['username'], $content, false) == true) {
+		if ($this->quote_model->add_quote($userid, $authorname, $content, false) == true) {
 			$id = mysql_insert_id();
 			$quote = $this->quote_model->get_quote($id);
 				
@@ -512,6 +520,13 @@ class Quotes extends REST_Controller {
 	private function _build_quote_resp($quote, $userid) {
 		if ($quote == false)
 			return false;
+		
+		// convert time
+		$this->load->helper('converter_helper');
+		if ($quote['createdtime'] != null)
+			$quote['createdtime'] = time_to_unixtimestamp($quote['createdtime'], 'America/Los_Angeles');
+		if ($quote['publishedtime'] != null)
+			$quote['publishedtime'] = time_to_unixtimestamp($quote['publishedtime'], 'America/Los_Angeles');
 		
 		if (validate_int($userid)) {
 			$quote['is_liked'] = $this->quote_model->is_liked($quote['quoteid'], $userid);
