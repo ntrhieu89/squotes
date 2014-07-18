@@ -214,7 +214,7 @@ class Quote_model extends CI_Model {
 		$success = true; 
 		switch ($action) {
 		case 'like':
-			$this->db->insert('likes', $data);
+			$this->db->query('insert ignore into likes(userid, quoteid) values('.$userid.', '.$quoteid.')');
 			if ($this->db->affected_rows() == 1) {
 				$this->db->query('update quotes set likecount=likecount+1 where quoteid='.$quoteid);
 				if ($this->db->affected_rows() != 1) {
@@ -224,7 +224,7 @@ class Quote_model extends CI_Model {
 				$success = false;
 			break;
 		case 'favorite':
-			$this->db->insert('favorites', $data);
+			$this->db->query('insert ignore into favorites(userid, quoteid) values('.$userid.', '.$quoteid.')');
 			if ($this->db->affected_rows() == 1) {
 				$this->db->query('update quotes set favcount=favcount+1 where quoteid='.$quoteid);
 				if ($this->db->affected_rows() != 1) {
@@ -440,6 +440,19 @@ class Quote_model extends CI_Model {
 		if ($this->db->affected_rows() == 1)
 			return true;
 		else
+			return false;
+	}
+	
+	/**
+	 * Checks whether a quote with quoteid exists
+	 * @param unknown $quoteid
+	 */
+	public function is_existed($quoteid) {
+		$query = $this->db->query('select * from quotes where quoteid='.$quoteid);
+		
+		if ($query == true && $query->num_rows() == 1)
+			return true;
+		else 
 			return false;
 	}
 }

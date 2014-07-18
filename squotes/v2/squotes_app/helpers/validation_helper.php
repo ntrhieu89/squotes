@@ -10,3 +10,13 @@ if (! function_exists ( 'validate_date' )) {
 		return $d && $d->format($format) == $date;
 	}	
 }
+
+if (! function_exists ( 'validate_int' )) {
+	function validate_int($value)
+	{
+		if (!is_numeric($value) || !is_int(0+$value))
+			return false;
+		else
+			return true;
+	}
+}

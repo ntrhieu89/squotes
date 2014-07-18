@@ -24,12 +24,12 @@ $config = array(
 			array(
 					'field' => 'username',
 					'label' => 'Username',
-					'rules' => 'trim|required|max_length[30]|xss_clean|is_unique[users.username]|alpha_dash',
+					'rules' => 'trim|required|min_length[6]|max_length[30]|xss_clean|is_unique[users.username]|alpha_dash',
 			),
 			array(
 					'field' => 'password',
 					'label' => 'Password',
-					'rules' => 'trim|required|max_length[30]|xss_clean|alpha_dash'
+					'rules' => 'trim|required|min_length[6]|max_length[30]|xss_clean|alpha_dash'
 			),
 // 			array(
 // 					'field' => 'email',

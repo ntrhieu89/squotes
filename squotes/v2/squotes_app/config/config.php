@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= 'http://apstick.com/squotes/v2/';
+$config['base_url']	= 'http://localhost/squotes/v2/';
 
 /*
 |--------------------------------------------------------------------------

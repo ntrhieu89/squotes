@@ -38,8 +38,8 @@
 |
 */
 
-$route['default_controller'] = "welcome";
-$route['404_override'] = '';
+$route['default_controller'] = "api/error/index/format/json";
+$route['404_override'] = 'api/error/index/format/json';
 
 $route['admin'] = "welcome";
 $route['admin/(:any)'] = 'api/admin/$1/format/json';
@@ -91,6 +91,8 @@ $route['quote/share/format/(:any)'] = 'api/quotes/quote_share/format/$1';
 
 $route['quote/report'] = 'api/quotes/quote_report/format/json';
 $route['quote/report/format/(:any)'] = 'api/quotes/quote_report/format/$1';
+
+$route['(:any)'] = 'api/error/index/format/json';
 
 
 /* End of file routes.php */

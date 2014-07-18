@@ -250,11 +250,11 @@ class User_model extends CI_Model {
 		if ($token == false)
 			return false;	
 		
-		$this->db->query("update usertokens set isexpired=1 where token='".$token."'");
-		
-		echo $this->db->affected_rows();
-		if ($this->db->affected_rows() == 1)
-			
+		$data = array( 'isexpired' => true);
+		$this->db->where('token', $token);
+		$this->db->update('usertokens', $data);
+
+		if ($this->db->affected_rows() == 1)			
 			return true;
 		else
 			return false;

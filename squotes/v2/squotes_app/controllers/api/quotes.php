@@ -15,10 +15,7 @@ class Quotes extends REST_Controller {
 		$this->load->model('quote_model');
 		
 		$this->load->library('form_validation');
-	}
-	
-	function test_get() {
-		$this->response('TEST', 200);
+		$this->load->helper('validation_helper');
 	}
 	
 	/**
@@ -35,7 +32,7 @@ class Quotes extends REST_Controller {
 		if ($page == false) 
 			$page = 1;		
 		
-		if (is_int((int)$page) == false || $page <= 0) {
+		if (!validate_int($page) || $page <= 0) {
 			$resp['status'] = 400;
 			$resp['message'] = 'Page parameter is missing or the value is invalid.';
 			$this->response($resp, 400);
@@ -45,9 +42,9 @@ class Quotes extends REST_Controller {
 		if ($numperpage == false)
 			$numperpage = 10;
 		
-		if (is_int((int)$numperpage) == false || $numperpage <= 0) {
+		if (!validate_int($numperpage) || $numperpage <= 0) {
 			$resp['status'] = 400;
-			$resp['message'] = 'Page parameter is missing or the value is invalid.';
+			$resp['message'] = 'Number per page parameter is missing or the value is invalid.';
 			$this->response($resp, 400);
 		}
 		
@@ -74,8 +71,8 @@ class Quotes extends REST_Controller {
 		if ($quotes == false)
 			$resp['data'] = null;
 		else {
-			foreach ($quotes as $quote) {
-				$quote = $this->_build_quote_resp($quote, $userid);
+			foreach ($quotes as $key => $quote) {
+				$quotes[$key] = $this->_build_quote_resp($quote, $userid);
 			}
 			
 			$resp['data'] = $quotes;
@@ -117,8 +114,8 @@ class Quotes extends REST_Controller {
 		if ($quotes == false)
 			$resp['data'] = null;
 		else {
-			foreach ($quotes as $quote) {
-				$quote = $this->_build_quote_resp($quote, $userid);
+			foreach ($quotes as $key => $quote) {
+				$quotes[$key] = $this->_build_quote_resp($quote, $userid);
 			}
 			
 			$resp['data'] = $quotes;
@@ -170,9 +167,9 @@ class Quotes extends REST_Controller {
 		if ($quotes == false)
 			$resp['data'] = null;
 		else {
-			foreach ($quotes as $quote) {
-				$quote = $this->_build_quote_resp($quote, $userid);
-			}			
+			foreach ($quotes as $key => $quote) {
+				$quotes[$key] = $this->_build_quote_resp($quote, $userid);
+			}		
 				
 			$resp['data'] = $quotes;
 		}
@@ -287,10 +284,11 @@ class Quotes extends REST_Controller {
 					
 		if ($this->form_validation->run('quote_post') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = 'The content of the quote is missing, invalid or already been posted by another user.';
+			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 401);			
 		}
-		$content = $this->post('content');			
+		
+		$content = $this->post('content');		
 		
 		$user = $this->user_model->get_user_by_id($userid);
 		
@@ -339,11 +337,17 @@ class Quotes extends REST_Controller {
 		}
 		
 		$quoteid = $this->post('quoteid');
+		if ($this->quote_model->is_existed($quoteid) == false) {
+			$resp['status'] = 404;
+			$resp['message'] = 'Quote with quoteid provided not found.';
+			$this->response($resp, 404);
+		}
+		
 		if ($this->quote_model->take_action_quote($userid, $quoteid, 'like') == true) {
 			$this->response($resp, 200);
 		} else {
 			$resp['status'] = 500;
-			$resp['message'] = 'Server error. Try again';
+			$resp['message'] = 'Quote not found or server error. Try again';
 			$this->response($resp, 500);
 		}
 	}
@@ -364,11 +368,17 @@ class Quotes extends REST_Controller {
 		
 		if ($this->form_validation->run('quote_like_fav_share') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = validation_errors();
+			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
 		$quoteid = $this->post('quoteid');
+		if ($this->quote_model->is_existed($quoteid) == false) {
+			$resp['status'] = 404;
+			$resp['message'] = 'Quote with quoteid provided not found.';
+			$this->response($resp, 404);
+		}
+		
 		if ($this->quote_model->take_action_quote($userid, $quoteid, 'favorite') == true) {
 			$this->response($resp, 200);
 		} else {
@@ -393,11 +403,17 @@ class Quotes extends REST_Controller {
 	
 		if ($this->form_validation->run('quote_like_fav_share') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = validation_errors();
+			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 	
 		$quoteid = $this->post('quoteid');
+		if ($this->quote_model->is_existed($quoteid) == false) {
+			$resp['status'] = 404;
+			$resp['message'] = 'Quote with quoteid provided not found.';
+			$this->response($resp, 404);
+		}
+		
 		if ($this->quote_model->take_action_quote($userid, $quoteid, 'share') == true) {
 			$this->response($resp, 200);
 		} else {
@@ -424,11 +440,17 @@ class Quotes extends REST_Controller {
 		
 		if ($this->form_validation->run('quote_report') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = validation_errors();
+			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
 		$quoteid = $this->post('quoteid');
+		if ($this->quote_model->is_existed($quoteid) == false) {
+			$resp['status'] = 404;
+			$resp['message'] = 'Quote with quoteid provided not found.';
+			$this->response($resp, 404);
+		}
+		
 		$message = $this->post('message');
 		if ($message == false)
 			$message = '';
@@ -491,14 +513,14 @@ class Quotes extends REST_Controller {
 		if ($quote == false)
 			return false;
 		
-		if ($userid == false || !is_int((int)$userid)) {
-			$quote['is_liked'] = null;
-			$quote['is_favored'] = null;
-			$quote['is_reported'] = null;
-		} else {
+		if (validate_int($userid)) {
 			$quote['is_liked'] = $this->quote_model->is_liked($quote['quoteid'], $userid);
 			$quote['is_favored'] = $this->quote_model->is_favored($quote['quoteid'], $userid);
 			$quote['is_reported'] = $this->quote_model->is_reported($quote['quoteid'], $userid);		
+		} else {
+			$quote['is_liked'] = null;
+			$quote['is_favored'] = null;
+			$quote['is_reported'] = null;			
 		}
 			
 		return $quote;

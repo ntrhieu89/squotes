@@ -21,6 +21,7 @@ class User extends REST_Controller {
 		
 		// form validation
 		$this->load->library('form_validation');
+		$this->load->helper('validation_helper');
 	}
 	
 	/**
@@ -60,7 +61,7 @@ class User extends REST_Controller {
 		// check validation
 		if ($this->form_validation->run('signup') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->form_validation->error_array();
+			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
@@ -114,9 +115,9 @@ class User extends REST_Controller {
 		
 		// check input
 		$userid = $this->get('userid');		
-		if ($userid == false) {
+		if (validate_int($userid) == false) {
 			$resp['status'] = 400;
-			$resp['message'] = 'Parameter missing.';
+			$resp['message'] = 'Parameter missing or invalid.';
 			$this->response($resp, 400);
 		}
 		
@@ -180,17 +181,20 @@ class User extends REST_Controller {
 	 * DELETE user/access_token
 	 * Sign out
 	 */
-	public function access_token_delete() {
+	public function access_token_post() {
 		$resp = array(
 			'status' => 200,
 			'message' => 'Access_token has been deleted.',
 			'data' => null	
 		);
 		
-		$token = $this->get('access_token');
+		$token = $this->post('access_token');
 		
-		if ($token == false)
-			$this->response(null, 200);
+		if ($token == false) {
+			$resp['status'] = 401;
+			$resp['message'] = 'Access_token input is required.';
+			$this->response($resp, 401);
+		}
 		
 		if ($this->user_model->expire_token($token))
 			$this->response($resp, 200);
@@ -199,5 +203,15 @@ class User extends REST_Controller {
 			$resp['message'] = 'Access_token is not valid.';
 			$this->response($resp, 401);
 		}
+	}
+	
+	private function _get_validation_errors($error_array) {
+		$str = '';
+	
+		foreach ($error_array as $key => $err) {
+			$str = $str.$err;
+		}
+	
+		return $str;
 	}
 }
