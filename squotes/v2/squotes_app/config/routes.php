@@ -42,6 +42,7 @@ $route['default_controller'] = "api/error/index/format/json";
 $route['404_override'] = 'api/error/index/format/json';
 
 $route['admin'] = "welcome";
+
 $route['admin/(:any)'] = 'api/admin/$1/format/json';
 $route['admin/(:any)/format/(:any)'] = "api/admin/$1/format/$2";
 

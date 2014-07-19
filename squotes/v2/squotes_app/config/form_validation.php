@@ -7,7 +7,7 @@ $config = array(
 		array(
 			'field' => 'content',
 			'label' => 'Content',
-			'rules' => 'required|max_length[1000]|xss_clean',	
+			'rules' => 'required|is_unique[quotes.content]|max_length[1000]|xss_clean',	
 		),
 		array(
 			'field' => 'author',

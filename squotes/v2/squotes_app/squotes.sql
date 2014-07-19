@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.36, for Win32 (x86)
+-- MySQL dump 10.13  Distrib 5.6.16, for Win32 (x86)
 --
--- Host: localhost    Database: squotes
+-- Host: localhost    Database: squotes2
 -- ------------------------------------------------------
--- Server version	5.5.36
+-- Server version	5.6.16
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -28,8 +28,8 @@ CREATE TABLE `favorites` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userid`,`quoteid`),
   KEY `quoteid` (`quoteid`),
-  CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`),
-  CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
+  CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
+  CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -55,8 +55,8 @@ CREATE TABLE `likes` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`quoteid`,`userid`),
   KEY `userid` (`userid`),
-  CONSTRAINT `likes_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
-  CONSTRAINT `likes_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`)
+  CONSTRAINT `likes_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`),
+  CONSTRAINT `likes_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -83,8 +83,8 @@ CREATE TABLE `quotereports` (
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `quoteid` (`quoteid`),
   KEY `userid` (`userid`),
-  CONSTRAINT `quotereports_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
-  CONSTRAINT `quotereports_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`)
+  CONSTRAINT `quotereports_ibfk_1` FOREIGN KEY (`quoteid`) REFERENCES `quotes` (`quoteid`),
+  CONSTRAINT `quotereports_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -107,20 +107,21 @@ DROP TABLE IF EXISTS `quotes`;
 CREATE TABLE `quotes` (
   `quoteid` int(11) NOT NULL AUTO_INCREMENT,
   `content` text NOT NULL,
-  `userid` int(11) NOT NULL,
+  `userid` int(11) DEFAULT NULL,
   `createdtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `publishedtime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `publishedtime` datetime DEFAULT NULL,
   `ispublished` bit(1) NOT NULL DEFAULT b'0',
-  `isvalidated` bit(1) NOT NULL DEFAULT b'0',
-  `reportcount` int(11) NOT NULL,
+  `reportcount` int(11) DEFAULT '0',
   `authorname` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL DEFAULT '0',
   `likecount` int(11) NOT NULL DEFAULT '0',
   `favcount` int(11) NOT NULL DEFAULT '0',
   `language` varchar(20) NOT NULL DEFAULT 'english',
+  `sharecount` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`quoteid`),
+  UNIQUE KEY `content` (`content`(200)),
   KEY `fk_tokens_users` (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1032 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,7 +142,6 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `userid` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
   `password` varchar(512) NOT NULL,
   `email` varchar(100) NOT NULL,
   `firstname` varchar(50) NOT NULL,
@@ -149,8 +149,9 @@ CREATE TABLE `users` (
   `avatar` varchar(512) NOT NULL,
   `jointime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `salt` varchar(512) NOT NULL,
-  PRIMARY KEY (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`userid`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,4 +199,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-07-12 23:23:31
+-- Dump completed on 2014-07-18 15:54:14

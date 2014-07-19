@@ -4,9 +4,9 @@
  * @author Hieu Nguyen
  */
 
-require APPPATH.'/libraries/REST_Controller.php';
+require APPPATH.'/controllers/api/BASE_Controller.php';
 
-class Quotes extends REST_Controller {
+class Quotes extends BASE_Controller {
 	function __construct() {
 		parent::__construct();
 		
@@ -23,7 +23,7 @@ class Quotes extends REST_Controller {
 	 * Gets all quotes in the system
 	 */
 	function index_get() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token if existed
 		$userid = $this->_check_authentication();
@@ -90,7 +90,7 @@ class Quotes extends REST_Controller {
 	 * Gets all quotes that have createdtime or publishedtime greater than than the provided timestamp
 	 */
 	function quotes_aftertime_get() {		
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token if existed
 		$userid = $this->_check_authentication();		
@@ -133,7 +133,7 @@ class Quotes extends REST_Controller {
 	 * Gets a number of quotes that have createdtime or publishedtime right before the provided timestamp
 	 */
 	function quotes_beforetime_get() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token if existed
 		$userid = $this->_check_authentication();	
@@ -186,7 +186,7 @@ class Quotes extends REST_Controller {
 	 * Gets all quotes posted by a user
 	 */
 	function quotes_user_get() {		
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token if existed
 		$id = $this->_check_authentication();	
@@ -219,7 +219,7 @@ class Quotes extends REST_Controller {
 	 * Gets all quotes this user favorites
 	 */
 	function quotes_user_favorites_get() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token if existed
 		$id = $this->_check_authentication();	
@@ -252,7 +252,7 @@ class Quotes extends REST_Controller {
 	 * Gets most recent published quote
 	 */
 	function quote_get() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token
 		$userid = $this->_check_authentication();
@@ -276,7 +276,7 @@ class Quotes extends REST_Controller {
 	 * User posts a quote
 	 */
 	function quote_post() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		// check access_token
 		$userid = $this->_check_authentication();		
@@ -288,7 +288,7 @@ class Quotes extends REST_Controller {
 					
 		if ($this->form_validation->run('quote_post') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 401);			
 		}
 		
@@ -329,7 +329,7 @@ class Quotes extends REST_Controller {
 	 * User likes a quote
 	 */
 	function quote_like_post() {
-		$resp = $this->_prepare_reponse();	
+		$resp = $this->prepare_response();	
 		
 		$userid = $this->_check_authentication();		
 		if ($userid == false) {	// userid missing
@@ -340,7 +340,7 @@ class Quotes extends REST_Controller {
 		
 		if ($this->form_validation->run('quote_like_fav_share') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
@@ -365,7 +365,7 @@ class Quotes extends REST_Controller {
 	 * User favors a quote
 	 */
 	function quote_favorite_post() {
-		$resp = $this->_prepare_reponse();	
+		$resp = $this->prepare_response();	
 		
 		$userid = $this->_check_authentication();		
 		if ($userid == false) {	// userid missing
@@ -376,7 +376,7 @@ class Quotes extends REST_Controller {
 		
 		if ($this->form_validation->run('quote_like_fav_share') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
@@ -400,7 +400,7 @@ class Quotes extends REST_Controller {
 	 * POST quote/share
 	 */
 	function quote_share_post() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 	
 		$userid = $this->_check_authentication();
 			if ($userid == false || !is_int((int)$userid)) {
@@ -411,7 +411,7 @@ class Quotes extends REST_Controller {
 	
 		if ($this->form_validation->run('quote_like_fav_share') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 	
@@ -436,7 +436,7 @@ class Quotes extends REST_Controller {
 	 * User reports a quote as inappropriate
 	 */
 	function quote_report_post() {
-		$resp = $this->_prepare_reponse();
+		$resp = $this->prepare_response();
 		
 		$userid = $this->_check_authentication();
 		
@@ -448,7 +448,7 @@ class Quotes extends REST_Controller {
 		
 		if ($this->form_validation->run('quote_report') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
@@ -470,18 +470,6 @@ class Quotes extends REST_Controller {
 			$resp['message'] = 'Server error. Try again';
 			$this->response($resp, 500);
 		}		
-	}
-	
-	/**
-	 * Prepares response
-	 * @return multitype:number string NULL
-	 */
-	private function _prepare_reponse() {
-		return array(
-			'status' => 200,
-			'message' => 'Request has been processed successfully',
-			'data' => null
-		);
 	}
 	
 	/**
@@ -539,15 +527,5 @@ class Quotes extends REST_Controller {
 		}
 			
 		return $quote;
-	}
-	
-	private function _get_validation_errors($error_array) {
-		$str = '';
-		
-		foreach ($error_array as $key => $err) {
-			$str = $str.$err;
-		}
-		
-		return $str;
 	}
 }

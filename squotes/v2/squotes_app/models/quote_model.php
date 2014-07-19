@@ -349,12 +349,13 @@ class Quote_model extends CI_Model {
 	 * @param unknown $quoteid
 	 * @return void|boolean
 	 */
-	public function validate_quote($quoteid) {
+	public function publish_quote($quoteid) {
 		if ($quoteid == false)
 			return;
 		
-		$data = array('isvalidated', true);
+		$data = array('ispublished', true);
 		
+		$this->db->set('publishedtime', 'NOW()', false);
 		$this->db->where('quoteid', $quoteid);
 		$this->db->update('quotes', $data);
 		
@@ -364,42 +365,42 @@ class Quote_model extends CI_Model {
 			return false;
 	}
 	
-	/**
-	 * Gets a quote to publish. 
-	 * A satisfied quote is the one which is validated and has not been published yet.
-	 * If no quote satisfies the condition, null value is returned.
-	 */
-	public function get_a_quote_to_publish($language) {
-		// gets the oldest quote that has been validated but has not been published yet
-		$query = $this->db->query('select * from quotes where isvalidated=1 and ispublished=0 and language=\''.$language.'\' order by createdtime desc limit 1');
+// 	/**
+// 	 * Gets a quote to publish. 
+// 	 * A satisfied quote is the one which is validated and has not been published yet.
+// 	 * If no quote satisfies the condition, null value is returned.
+// 	 */
+// 	public function get_a_quote_to_publish($language) {
+// 		// gets the oldest quote that has been validated but has not been published yet
+// 		$query = $this->db->query('select * from quotes where isvalidated=1 and ispublished=0 and language=\''.$language.'\' order by createdtime desc limit 1');
 		
-		// no quote found. may be there is no validated quote is the database or all validated quotes were published.
-		if ($query == null || $query->num_rows() != 1)
-			return false;
+// 		// no quote found. may be there is no validated quote is the database or all validated quotes were published.
+// 		if ($query == null || $query->num_rows() != 1)
+// 			return false;
 		
-		$quote = get_object_vars($query->result()[0]);
+// 		$quote = get_object_vars($query->result()[0]);
 		
-		return $quote;
-	}
+// 		return $quote;
+// 	}
 	
-	/**
-	 * The quote (if existed) is marked as published.
-	 * @param unknown $quoteid
-	 * @return boolean
-	 */
-	public function set_a_quote_as_published($quoteid) {
-		if ($quoteid == false)
-			return false;
+// 	/**
+// 	 * The quote (if existed) is marked as published.
+// 	 * @param unknown $quoteid
+// 	 * @return boolean
+// 	 */
+// 	public function set_a_quote_as_published($quoteid) {
+// 		if ($quoteid == false)
+// 			return false;
 		
-		$data = array('ispublished', true);
+// 		$data = array('ispublished', true);
 		
-		$query = $this->db->query('update quotes set ispublished=1, publishedtime=now() where quoteid='.$quoteid);
+// 		$query = $this->db->query('update quotes set ispublished=1, publishedtime=now() where quoteid='.$quoteid);
 		
-		if ($this->db->affected_rows() == 1)
-			return true;
-		else
-			return false;
-	}
+// 		if ($this->db->affected_rows() == 1)
+// 			return true;
+// 		else
+// 			return false;
+// 	}
 	
 	public function get_recent_published_quote() {
 		$query = $this->db->query('select * from quotes where ispublished=1 order by publishedtime desc limit 1');
