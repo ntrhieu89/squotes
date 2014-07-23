@@ -63,6 +63,37 @@ $config = array(
 			'rules' => 'required|min_length[10]|max_length[1000]|is_unique[quotes.content]|xss_clean'
 		),
 	),
+	'set_avatar' => array(
+			array(
+					'field' => 'avatar',
+					'label' => 'Avatar',
+					'rules' => 'required|xss_clean|'
+			)
+	),
+	'set_name' => array(
+		array(
+				'field' => 'firstname',
+				'label' => 'First Name',
+				'rules' => 'required|max_length[50]|xss_clean'
+		),
+		array(
+				'field' => 'lastname',
+				'label' => 'Last Name',
+				'rules' => 'max_length[50]|alpha_numeric|xss_clean'
+		),
+	),
+	'change_password' => array(
+			array(
+					'field' => 'oldpass',
+					'label' => 'Old Password',
+					'rules' => 'trim|required|max_length[128]|xss_clean|alpha_dash'
+			),
+			array(
+					'field' => 'newpass',
+					'label' => 'New Password',
+					'rules' => 'trim|required|max_length[128]|xss_clean|alpha_dash'
+			)
+	),		
 );
 
 /* End of file form_validation.php */

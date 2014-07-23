@@ -26,7 +26,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token if existed
-		$userid = $this->_check_authentication();
+		$userid = $this->check_authentication();
 		
 		$page = $this->get('page');
 		if ($page == false) 
@@ -93,7 +93,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token if existed
-		$userid = $this->_check_authentication();		
+		$userid = $this->check_authentication();		
 
 		$time = $this->get('time');		
 		if ($time == false) {
@@ -136,7 +136,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token if existed
-		$userid = $this->_check_authentication();	
+		$userid = $this->check_authentication();	
 
 		$time = $this->get('time');
 		if ($time == false) {
@@ -189,7 +189,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token if existed
-		$id = $this->_check_authentication();	
+		$id = $this->check_authentication();	
 		
 		$userid = $this->get('userid');
 		
@@ -222,7 +222,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token if existed
-		$id = $this->_check_authentication();	
+		$id = $this->check_authentication();	
 		
 		$userid = $this->get('userid');
 		
@@ -255,7 +255,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token
-		$userid = $this->_check_authentication();
+		$userid = $this->check_authentication();
 		
 		$quote = $this->quote_model->get_recent_published_quote();
 		
@@ -279,7 +279,7 @@ class Quotes extends BASE_Controller {
 		$resp = $this->prepare_response();
 		
 		// check access_token
-		$userid = $this->_check_authentication();		
+		$userid = $this->check_authentication();		
 		if ($userid == false) {
 			$resp['status'] = 401;
 			$resp['message'] = 'User unauthorized.';
@@ -331,7 +331,7 @@ class Quotes extends BASE_Controller {
 	function quote_like_post() {
 		$resp = $this->prepare_response();	
 		
-		$userid = $this->_check_authentication();		
+		$userid = $this->check_authentication();		
 		if ($userid == false) {	// userid missing
 			$resp['status'] = 400;
 			$resp['message'] = 'User unauthorized.';
@@ -367,7 +367,7 @@ class Quotes extends BASE_Controller {
 	function quote_favorite_post() {
 		$resp = $this->prepare_response();	
 		
-		$userid = $this->_check_authentication();		
+		$userid = $this->check_authentication();		
 		if ($userid == false) {	// userid missing
 			$resp['status'] = 400;
 			$resp['message'] = 'Userid missing.';
@@ -402,7 +402,7 @@ class Quotes extends BASE_Controller {
 	function quote_share_post() {
 		$resp = $this->prepare_response();
 	
-		$userid = $this->_check_authentication();
+		$userid = $this->check_authentication();
 			if ($userid == false || !is_int((int)$userid)) {
 			$resp['status'] = 400;
 			$resp['message'] = 'Userid missing.';
@@ -438,7 +438,7 @@ class Quotes extends BASE_Controller {
 	function quote_report_post() {
 		$resp = $this->prepare_response();
 		
-		$userid = $this->_check_authentication();
+		$userid = $this->check_authentication();
 		
 		if ($userid == false || !is_int((int)$userid)) {
 			$resp['status'] = 400;
@@ -470,33 +470,6 @@ class Quotes extends BASE_Controller {
 			$resp['message'] = 'Server error. Try again';
 			$this->response($resp, 500);
 		}		
-	}
-	
-	/**
-	 * Checks authentication of user.
-	 * If user found, return the userid.
-	 * If access token is invalid, response error
-	 * If access token is not provided, return false
-	 */
-	private function _check_authentication() {
-		// check access_token if existed
-		$access_token = $this->get('access_token');
-		
-		if ($access_token == false)
-			$access_token = $this->post('access_token');
-		
-		if ($access_token != false) {
-			$userid = $this->user_model->check_access_token($access_token);
-			if ($userid == false) {
-				$resp['status'] = 401;
-				$resp['message'] = 'Access_token provided is not valid.';
-				$this->response($resp, 401);
-			} else {
-				return $userid;
-			}
-		} else {
-			return false;
-		}
 	}
 	
 	/**

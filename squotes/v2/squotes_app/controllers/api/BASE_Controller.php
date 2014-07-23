@@ -14,6 +14,8 @@ require APPPATH.'/libraries/REST_Controller.php';
 class BASE_Controller extends REST_Controller {
 	function __construct() {
 		parent::__construct();
+		
+		$this->load->model('user_model');
 	}
 	
 	/**
@@ -65,5 +67,32 @@ class BASE_Controller extends REST_Controller {
 			return true;
 		else
 			return false;
+	}
+	
+	/**
+	 * Checks authentication of user.
+	 * If user found, return the userid.
+	 * If access token is invalid, response error
+	 * If access token is not provided, return false
+	 */
+	function check_authentication() {
+		// check access_token if existed
+		$access_token = $this->get('access_token');
+	
+		if ($access_token == false)
+			$access_token = $this->post('access_token');
+	
+		if ($access_token != false) {
+			$userid = $this->user_model->check_access_token($access_token);
+			if ($userid == false) {
+				$resp['status'] = 401;
+				$resp['message'] = 'Access_token provided is not valid.';
+				$this->response($resp, 401);
+			} else {
+				return $userid;
+			}
+		} else {
+			return false;
+		}
 	}
 }

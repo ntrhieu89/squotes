@@ -52,6 +52,15 @@ $route['user/format/(:any)'] = 'api/user/index/format/$1';
 
 $route['user/access_token'] = 'api/user/access_token/format/json';
 $route['user/access_token/format/(:any)'] = 'api/user/access_token/format/$1';
+
+$route['user/name'] = 'api/user/name/format/json';
+$route['user/name/format/(:any)'] = 'api/user/name/format/$1';
+
+$route['user/password'] = 'api/user/password/format/json';
+$route['user/password/format/(:any)'] = 'api/user/password/format/$1';
+
+$route['user/avatar'] = 'api/user/avatar/format/json';
+$route['user/avatar/format/(:any)'] = 'api/user/avatar/format/$1';
 #$route['user/access_token/username/(:any)/password/(:any)'] = "api/user/access_token/username/$1/password/$2/format/json";
 #$route['user/access_token/username/(:any)/password/(:any)/format/(:any)'] = "api/user/access_token/username/$1/password/$2/format/$3";
 

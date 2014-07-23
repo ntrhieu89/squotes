@@ -4,14 +4,14 @@
  * @author Hieu Nguyen
  */
 
-require APPPATH.'/libraries/REST_Controller.php';
+require APPPATH.'/controllers/api/BASE_Controller.php';
 
 /**
  * Admin controller
  * @author Hieu
  *
  */
-class User extends REST_Controller {
+class User extends BASE_Controller {
 	function __construct() {
 		parent::__construct();
 	
@@ -61,7 +61,7 @@ class User extends REST_Controller {
 		// check validation
 		if ($this->form_validation->run('signup') == false) {
 			$resp['status'] = 400;
-			$resp['message'] = $this->_get_validation_errors($this->form_validation->error_array());
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
 			$this->response($resp, 400);
 		}
 		
@@ -209,13 +209,127 @@ class User extends REST_Controller {
 		}
 	}
 	
-	private function _get_validation_errors($error_array) {
-		$str = '';
+	/**
+	 * Sets avatar
+	 */
+	public function avatar_post() {
+		$resp = array(
+			'status' => 200,
+			'message' => 'Avatar has been set successfully',
+			'data' => null
+		);
+		
+		// check access_token if existed
+		$userid = $this->check_authentication();
+		if ($userid == false) {	// userid missing
+			$resp['status'] = 400;
+			$resp['message'] = 'User unauthorized.';
+			$this->response($resp, 400);
+		}
+
+		// change the uploaded file name
+		$data = $_FILES['avatar'];
 	
-		foreach ($error_array as $key => $err) {
-			$str = $str.$err;
+		if ($data == false || $data['name'] == false)
+			$this->response($data, 400);
+	
+		$file_name = $data['name'];
+		$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+	
+		if (preg_match("\.(?i)(jpg|png|gif|bmp)", $ext, $match) == false)
+			$this->response($data, 400);
+	
+		$new_file_name = $userid.'_avt.'.pathinfo($file_name, PATHINFO_EXTENSION);
+	
+		// set upload directory
+		$upload_dir = 'bshare_app/files/avatars/';
+		$upload_file = $upload_dir.$new_file_name;
+	
+		// move upload file
+		if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_file)) {
+			// update database
+			if ($this->user_model->set_avatar($userid, $new_file_name)) {
+				$this->response($this->config->base_url().$upload_file, 200);
+			}
 		}
 	
-		return $str;
+		$this->response(null, 400);
 	}
+	
+	/**
+	 * Sets alias. If new alias is identical with the old alias,
+	 * this function will return false.
+	 */
+	public function name_post() {
+		$resp = array(
+			'status' => 200,
+			'message' => 'Name has been changed successfully',
+			'data' => null
+		);
+		
+		// check access_token if existed
+		$userid = $this->check_authentication();
+		if ($userid == false) {	// userid missing
+			$resp['status'] = 400;
+			$resp['message'] = 'User unauthorized.';
+			$this->response($resp, 400);
+		}
+		
+		if ($this->form_validation->run('set_name') == false) {
+			$resp['status'] = 400;
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
+			$this->response($resp, 400);
+		}		
+	
+		$firstname = $this->post('firstname');
+		$lastname = $this->post('lastname');		
+		
+		if ($lastname == false)
+			$lastname = '';
+	
+		if ($this->user_model->set_name($userid, $firstname, $lastname) == true) {
+			$this->response($resp, 200);
+		} else {
+			$resp['status'] = 500;
+			$resp['message'] = 'Some errors occur. Please try again later';	
+			$this->response(null, 500);
+		}
+	}
+	
+	public function password_post() {
+		$resp = array(
+				'status' => 200,
+				'message' => 'Password has been changed successfully',
+				'data' => null
+		);
+		
+		// check access_token if existed
+		$userid = $this->check_authentication();
+		if ($userid == false) {	// userid missing
+			$resp['status'] = 400;
+			$resp['message'] = 'User unauthorized.';
+			$this->response($resp, 400);
+		}
+	
+		if ($this->form_validation->run('change_password') == false) {
+			$resp['status'] = 400;
+			$resp['message'] = $this->get_validation_errors($this->form_validation->error_array());
+			$this->response($resp, 400);				
+		}
+	
+		$oldpass = $this->post('oldpass');
+		$newpass = $this->post('newpass');
+	
+		if ($oldpass === $newpass) {
+			$this->response($resp, 200);
+		}
+	
+		if ($this->user_model->change_password($userid, $oldpass, $newpass) == true)
+			$this->response($resp, 200);
+		else {
+			$resp['status'] = 500;
+			$resp['message'] = 'Some errors occur. Please try again later';	
+			$this->response(null, 500);
+		}
+	}	
 }
