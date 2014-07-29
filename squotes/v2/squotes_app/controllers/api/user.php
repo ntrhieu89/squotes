@@ -236,24 +236,25 @@ class User extends BASE_Controller {
 		$file_name = $data['name'];
 		$ext = pathinfo($file_name, PATHINFO_EXTENSION);
 	
-		if (preg_match("\.(?i)(jpg|png|gif|bmp)", $ext, $match) == false)
-			$this->response($data, 400);
+// 		if (preg_match("/\.(?i)(jpg|png|gif|bmp)/", $ext, $match) == false)
+// 			$this->response($data, 400);
 	
 		$new_file_name = $userid.'_avt.'.pathinfo($file_name, PATHINFO_EXTENSION);
 	
 		// set upload directory
-		$upload_dir = 'bshare_app/files/avatars/';
+		$upload_dir = 'squotes_app/files/avatars/';
 		$upload_file = $upload_dir.$new_file_name;
 	
 		// move upload file
 		if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_file)) {
 			// update database
 			if ($this->user_model->set_avatar($userid, $new_file_name)) {
-				$this->response($this->config->base_url().$upload_file, 200);
+				$resp['data'] = $this->config->base_url().$upload_file;
+				$this->response($resp, 200);
 			}
 		}
 	
-		$this->response(null, 400);
+		$this->response($resp, 500);
 	}
 	
 	/**
