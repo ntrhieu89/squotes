@@ -360,6 +360,14 @@ class Quotes extends BASE_Controller {
 		}
 	}
 	
+	function quote_unlike_post() {
+		
+	}
+	
+	function quote_unfavorite_port() {
+		
+	}
+	
 	/**
 	 * POST quote/favorite
 	 * User favors a quote

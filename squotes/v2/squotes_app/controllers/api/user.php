@@ -6,12 +6,14 @@
 
 require APPPATH.'/controllers/api/BASE_Controller.php';
 
+define("UPLOAD_DIR", 'squotes_app/files/avatars/');
+
 /**
  * Admin controller
  * @author Hieu
  *
  */
-class User extends BASE_Controller {
+class User extends BASE_Controller {	
 	function __construct() {
 		parent::__construct();
 	
@@ -39,11 +41,30 @@ class User extends BASE_Controller {
 			'email' => $user['email'],
 			'firstname' => $user['firstname'],
 			'lastname' => $user['lastname'],
-			'avatar' => $user['avatar'],
+			'avatar' => $this->_get_avatar_link($user['avatar']),
 			'jointime' => time_to_unixtimestamp($user['jointime'], 'America/Los_Angeles'),
 		);
 		
+		$data = $this->user_model->get_user_stats($user['userid']);
+		
+		$info['likes'] = $data['likes'];
+		$info['favorites'] = $data['favorites'];
+		
 		return $info;
+	}
+	
+	private function _get_avatar_link($filename) {
+		if ($filename == false || $filename == '')
+			return '';
+		
+		$path = UPLOAD_DIR.$filename;
+		
+		$link = $this->config->base_url().$path;
+		$changes = array('http://localhost');
+		
+		$link = str_replace($changes, 'https://apstick.com', $link);
+		
+		return $link;
 	}
 	
 	/**
@@ -180,26 +201,26 @@ class User extends BASE_Controller {
 			$this->response($resp, 200);
 		}		
 	}
-	
+
 	/**
 	 * DELETE user/access_token
 	 * Sign out
 	 */
-	public function access_token_post() {
+	public function access_token_delete() {
 		$resp = array(
-			'status' => 200,
-			'message' => 'Access_token has been deleted.',
-			'data' => null	
+				'status' => 200,
+				'message' => 'Access_token has been deleted.',
+				'data' => null
 		);
-		
-		$token = $this->post('access_token');
-		
+	
+		$token = $this->delete('access_token');
+	
 		if ($token == false) {
 			$resp['status'] = 401;
 			$resp['message'] = 'Access_token input is required.';
 			$this->response($resp, 401);
 		}
-		
+	
 		if ($this->user_model->expire_token($token))
 			$this->response($resp, 200);
 		else {
@@ -242,14 +263,15 @@ class User extends BASE_Controller {
 		$new_file_name = $userid.'_avt.'.pathinfo($file_name, PATHINFO_EXTENSION);
 	
 		// set upload directory
-		$upload_dir = 'squotes_app/files/avatars/';
-		$upload_file = $upload_dir.$new_file_name;
+		$upload_file = UPLOAD_DIR.$new_file_name;
 	
 		// move upload file
 		if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_file)) {
 			// update database
 			if ($this->user_model->set_avatar($userid, $new_file_name)) {
-				$resp['data'] = $this->config->base_url().$upload_file;
+				$link = $this->_get_avatar_link($new_file_name);
+				
+				$resp['data'] = $link;
 				$this->response($resp, 200);
 			}
 		}

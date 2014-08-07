@@ -165,6 +165,22 @@ class User_model extends CI_Model {
 		}
 	}
 	
+	public function get_user_stats($userid) {
+		$data = null;
+		
+		$query = $this->db->query('select count(*) as likes from likes where userid='.$userid.'');
+		
+		if ($query == true && $query->num_rows() == 1)
+			$data['likes'] = get_object_vars($query->result()[0])['likes'];
+
+		$query = $this->db->query('select count(*) as favorites from favorites where userid='.$userid.'');
+		
+		if ($query == true && $query->num_rows() == 1)
+			$data['favorites'] = get_object_vars($query->result()[0])['favorites'];
+
+		return $data;
+	}
+	
 	public function check_credentials($email, $password) {
 		$user = $this->get_user($email);
 		
